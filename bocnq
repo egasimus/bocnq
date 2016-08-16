@@ -8,7 +8,6 @@ require('longjohn')
 // load core
 var app = glagol(rel('src/server'), {})
   , log = app().log.as('init');
-['bundler', 'server'].forEach(fixLibOptions);
 
 // start, or export
 module.exports = app;
@@ -20,14 +19,7 @@ if (module === require.main) {
 // helpers
 
 function rel (p) {
-  return require('path').resolve.apply(null, [__dirname].concat(p.split('/')));
-}
-
-function fixLibOptions (lib) {
-  // TODO auto set via package.json
-  var lib = app.get('lib').get(lib);
-  lib.options = lib.get('glagol-options.js')();
-}
+  return require('path').resolve.apply(null, [__dirname].concat(p.split('/'))); }
 
 function initElectron () {
   log('running in electron.');
@@ -38,5 +30,4 @@ function initElectron () {
     w = new (require('electron').BrowserWindow)({ frame: false })
     w.loadURL('http://localhost:1617');
     w.on('closed', function () { w = null })
-  });
-}
+  }); }
