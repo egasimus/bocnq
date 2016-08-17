@@ -10,8 +10,8 @@ module.exports.as = makeLogger;
 function makeLogger (as) {
 
   var log   = _log.bind(null, function(x){return x})
-  log.warn  = _log.bind(null, colors.yellow)
-  log.error = _log.bind(null, colors.red);
+  log.Warn  = _log.bind(null, colors.yellow)
+  log.Error = _log.bind(null, colors.red);
 
   return log;
 

@@ -1,10 +1,7 @@
 #!/usr/bin/env node
 require('longjohn') // long stack traces
-var root = require('path').resolve(__dirname, 'src', 'server')
+var root = require('path').resolve(__dirname, 'src', 'Server')
   , app  = require('glagol')(root)
-  , log  = app().log.as('init');
-app.get('bundler').options = app.get('bundler').get('glagol-options.js')();
+app.get('Bundler').options = app.get('Bundler').get('glagol-options.js')();
 module.exports = app;
-if (module === require.main) {
-  app().main();
-  _.electron(); }
+if (module === require.main) app().Main();

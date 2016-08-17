@@ -18,12 +18,12 @@ module.exports = function (App) {
 
   return App;
 
-  function listening () { $.log("listening on 0.0.0.0:1666") }
+  function listening () { $.Log("listening on 0.0.0.0:1666") }
   function respond (req, res) { _.urls(req.url, req, res) }
   function connect () { _.socket(App, arguments[0]) }
 
   function reload (node) {
-    $.log('Restarting server...');
+    $.Log('Restarting server...');
     if (App.Http) {
       App.Http.removeListener('listening', listening);
       App.Http.removeListener('request',   respond); }
@@ -31,5 +31,5 @@ module.exports = function (App) {
     try {
       node()(App);
     } catch (e) {
-      $.log.error('Error reloading /server/main');
-      $.log.error(e); } } }
+      $.Log.Error('Error reloading /server/main');
+      $.Log.Error(e); } } }
