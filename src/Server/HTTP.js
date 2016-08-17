@@ -54,7 +54,8 @@ function serveError (e, msg, req, res) {
   if (req.headers.accept && req.headers.accept.indexOf('text/html') > -1) {
     require('send-data/html')(req, res, { statusCode: 500, body:
       "<head><meta charset=\"utf-8\"></head>" +
-      "<body><pre><strong>" e.message "</strong>\n\n" e.stack "</pre></body>" })
+      "<body><pre><strong>" + e.message +
+      "</strong>\n\n" + e.stack + "</pre></body>" })
   } else {
     require('send-data/error')(req, res, { body: e, serializeStack: true })
   }
