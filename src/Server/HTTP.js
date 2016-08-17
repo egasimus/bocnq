@@ -18,10 +18,9 @@ function serveIndex (route, req, res) {
   require('send-data/html')(req, res, indexData); }
 
 function serveRequired (route, req, res) {
-  var error = $.Bundler.core.error.bind(null, req, res);
   try {
-    $.Bundler.core.bundle(clientCode, null, null, (err, data) => {
-      if (err) error(err, 'Bundling error');
+    $.Bundle(clientCode, (err, data) => {
+      if (err) serveError(err, 'Bundling error', req, res);
       else require('send-data')(req, res, { body: data }); }) }
   catch (e) {
     $.Log.Error('Error bundling client-side code:')
@@ -46,3 +45,17 @@ function serveAPI (route, req, res) {
 
   function respond (data) {
     require('send-data')(req, res, { body: data }); } }
+
+// errors
+
+function serveError (e, msg, req, res) {
+  $.Log.Error(msg, e, e.stack);
+  if (!req) return;
+  if (req.headers.accept && req.headers.accept.indexOf('text/html') > -1) {
+    require('send-data/html')(req, res, { statusCode: 500, body:
+      "<head><meta charset=\"utf-8\"></head>" +
+      "<body><pre><strong>" e.message "</strong>\n\n" e.stack "</pre></body>" })
+  } else {
+    require('send-data/error')(req, res, { body: e, serializeStack: true })
+  }
+}
