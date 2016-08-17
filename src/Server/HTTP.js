@@ -1,20 +1,39 @@
 module.exports = require('riko-route')(
-  [ [ /^\/$/,     serveGui ]
-  , [ /^\/api.?/, serveApi ] ]);
+  [ [ /^\/$/,            serveIndex    ]
+  , [ /^\/required.js$/, serveRequired ]
+  , [ /^\/app.js$/,      serveApp      ]
+  , [ /^\/api.?/,        serveAPI      ] ]);
 
-function serveGui (route, req, res) {
-  var id = authenticate(req);
-  if (!id) {
-    id = $.ID();
-    res.setHeader('Set-Cookie', 'user-id=' + id);
-    $.Data.set('sessions', id, { id: id }, () => { _.GUI(req, res) })
-  } else {
-    _.GUI(req, res)
-  }
-};
+// GUI
 
-function serveApi (route, req, res) {
-  var id    = authenticate(req)
+var clientPath = require('path').resolve(__dirname, '..', 'Client')
+  , options    = { formats: { '.styl': require('glagol-stylus')() } }
+  , clientCode = require('glagol')(clientPath, options)
+
+module.exports._track = clientCode
+
+function serveIndex (route, req, res) {
+  var indexPath = require('path').resolve(__dirname, '..', 'index.html')
+    , indexData = require('fs').readFileSync(indexPath, 'utf-8');
+  require('send-data/html')(req, res, indexData); }
+
+function serveRequired (route, req, res) {
+  var error = $.Bundler.core.error.bind(null, req, res);
+  try {
+    $.Bundler.core.bundle(clientCode, null, null, (err, data) => {
+      if (err) error(err, 'Bundling error');
+      else require('send-data')(req, res, { body: data }); }) }
+  catch (e) {
+    $.Log.Error('Error bundling client-side code:')
+    $.Log.Error(e.stack) } }
+
+function serveApp (route, req, res) {
+}
+
+// API
+
+function serveAPI (route, req, res) {
+  var id    = _.Auth.check(req)
     , model = $.plugins.Workspace.model.Users.get(id) || (function(){})
     , api   = $.api(model(), respond)
     , url   = require('url').parse(req.url)
@@ -27,7 +46,3 @@ function serveApi (route, req, res) {
 
   function respond (data) {
     require('send-data')(req, res, { body: data }); } }
-
-function authenticate (req) {
-  var cookies = require('cookie').parse(req.headers.cookie || '')
-  return cookies['user-id']; }
