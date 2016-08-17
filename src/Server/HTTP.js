@@ -7,8 +7,8 @@ function serveGui (route, req, res) {
   if (!id) {
     id = $.ID();
     res.setHeader('Set-Cookie', 'user-id=' + id);
-    $.Data.write('sessions', id, { id: id },
-      () => { _.gui(req, res) }) } };
+    $.Data.set('sessions', id, { id: id },
+      () => { _.GUI(req, res) }) } };
 
 function serveApi (route, req, res) {
   var id    = authenticate(req)
