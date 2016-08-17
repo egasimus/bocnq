@@ -5,9 +5,9 @@ module.exports = require('riko-route')(
 function serveGui (route, req, res) {
   var id = authenticate(req);
   if (!id) {
-    id = _.lib.makeId();
+    id = $.ID();
     res.setHeader('Set-Cookie', 'user-id=' + id);
-    _.data.write('sessions', id, { id: id },
+    $.Data.write('sessions', id, { id: id },
       () => { _.gui(req, res) }) } };
 
 function serveApi (route, req, res) {

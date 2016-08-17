@@ -19,8 +19,8 @@ module.exports = function (App) {
   return App;
 
   function listening () { $.Log("listening on 0.0.0.0:1666") }
-  function respond (req, res) { _.urls(req.url, req, res) }
-  function connect () { _.socket(App, arguments[0]) }
+  function respond (req, res) { _.HTTP(req.url, req, res) }
+  function connect () { _.WS(App, arguments[0]) }
 
   function reload (node) {
     $.Log('Restarting server...');
