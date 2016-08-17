@@ -12,6 +12,7 @@
     "colors": "^1.1.2",
     "cookie": "^0.3.1",
     "glagol": "^2.0.0-rc8",
+    "glagol-web-bundler": "^0.2.0",
     "longjohn": "^0.2.11",
     "riko-route": "github:egasimus/riko-router",
     "ws": "^1.1.1"

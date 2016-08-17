@@ -1,33 +1,10 @@
 #!/usr/bin/env node
-
-var glagol = require('glagol')
-
-// enable long stack traces
-require('longjohn')
-
-// load core
-var app = glagol(rel('src/server'), {})
-  , log = app().log.as('init');
-
-// start, or export
+require('longjohn') // long stack traces
+var root = require('path').resolve(__dirname, 'src', 'server')
+  , app  = require('glagol')(root)
+  , log  = app().log.as('init');
+app.get('bundler').options = app.get('bundler').get('glagol-options.js')();
 module.exports = app;
 if (module === require.main) {
   app().main();
-  if (process.versions.electron) initElectron();
-}
-
-// helpers
-
-function rel (p) {
-  return require('path').resolve.apply(null, [__dirname].concat(p.split('/'))); }
-
-function initElectron () {
-  log('running in electron.');
-  var electron = require('electron')
-    , w;
-  electron.app.on('ready', function () {
-    log('electron ready, opening window');
-    w = new (require('electron').BrowserWindow)({ frame: false })
-    w.loadURL('http://localhost:1617');
-    w.on('closed', function () { w = null })
-  }); }
+  _.electron(); }

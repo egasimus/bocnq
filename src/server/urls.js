@@ -7,8 +7,8 @@ function serveGui (route, req, res) {
   if (!id) {
     id = _.lib.makeId();
     res.setHeader('Set-Cookie', 'user-id=' + id);
-    _.data.write('sessions', id, { id: id });
-  return _.gui(req, res); }
+    _.data.write('sessions', id, { id: id },
+      () => { _.gui(req, res) }) } };
 
 function serveApi (route, req, res) {
   var id    = authenticate(req)
