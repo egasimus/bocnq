@@ -7,7 +7,7 @@ module.exports = (req, res) => {
   try {
     $.Bundler.core.bundle(app, null, null, (err, data) => {
       if (err) error(err, 'Bundling error');
-      else require('send-data')(req, res, data); }) }
+      else require('send-data')(req, res, { body: data }); }) }
   catch (e) {
     $.Log.Error('Error bundling client-side code:')
     $.Log.Error(e.stack) } }
