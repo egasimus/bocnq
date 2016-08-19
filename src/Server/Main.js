@@ -18,15 +18,25 @@ module.exports = function (App) {
 
   return App;
 
-  function listening () { $.Log("listening on 0.0.0.0:1666") }
+  function listening () {
+    $.Log("listening on 0.0.0.0:1666")
+  }
+
   function respond (req, res) {
     try {
       _.HTTP(req.url, req, res)
     } catch (e) {
-      $.Log.Error('Error when trying to respond to HTTP request:', '\n ', e.stack);
+      $.Log.Error('Error when responding to HTTP request:', '\n ', e.stack);
     }
   }
-  function connect () { _.WS(App, arguments[0]) }
+
+  function connect () {
+    try {
+      _.WS(App, arguments[0])
+    } catch (e) {
+      $.Log.Error('Error when connecting to WebSocket:', '\n ', e.stack);
+    }
+  }
 
   function reload (node) {
     $.Log('Restarting server...');

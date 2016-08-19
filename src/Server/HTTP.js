@@ -1,8 +1,12 @@
 module.exports = require('riko-route')(
-  [ [ /^\/$/,            serveIndex    ]
-  , [ /^\/required.js$/, serveRequired ]
-  , [ /^\/app.js$/,      serveApp      ]
-  , [ /^\/api.?/,        serveAPI      ] ]);
+  [ [ /^\/$/,        serveIndex ]
+  , [ /^\/libs.js$/, serveLibs  ]
+  , [ /^\/app.js$/,  serveApp   ]
+  , [ /^\/api.?/,    serveAPI   ] ]);
+
+module.exports.catchall = function (route, args) {
+  require('send-data/html')(args[0], args[1],
+    { body: 'Not found', statusCode: 404 }); }
 
 // GUI
 
@@ -10,24 +14,31 @@ var clientPath = require('path').resolve(__dirname, '..', 'Client')
   , options    = { formats: { '.styl': require('glagol-stylus')() } }
   , clientCode = require('glagol')(clientPath, options)
 
-module.exports._track = clientCode
+module.exports._track   = clientCode;
+module.exports._bundler = $.Bundle(clientCode);
 
 function serveIndex (route, req, res) {
   var indexPath = require('path').resolve(__dirname, '..', 'index.html')
     , indexData = require('fs').readFileSync(indexPath, 'utf-8');
   require('send-data/html')(req, res, indexData); }
 
-function serveRequired (route, req, res) {
+function serveLibs (route, req, res) {
   try {
-    $.Bundle(clientCode, (err, data) => {
-      if (err) serveError(err, 'Bundling error', req, res);
+    module.exports._bundler.buildLibs((err, data) => {
+      if (err) serveError(err, 'Error when bundling dependencies:', req, res);
       else require('send-data')(req, res, { body: data }); }) }
   catch (e) {
-    $.Log.Error('Error bundling client-side code:')
+    $.Log.Error('Error preparing client-side libraries:')
     $.Log.Error(e.stack) } }
 
 function serveApp (route, req, res) {
-}
+  try {
+    module.exports._bundler.buildApp((err, data) => {
+      if (err) serveError(err, 'Error when bundling app code:', req, res);
+      else require('send-data')(req, res, { body: JSON.stringify(data) }); }) }
+  catch (e) {
+    $.Log.Error('Error preparing client-side app source:')
+    $.Log.Error(e.stack) } }
 
 // API
 
@@ -49,7 +60,7 @@ function serveAPI (route, req, res) {
 // errors
 
 function serveError (e, msg, req, res) {
-  $.Log.Error(msg, e, e.stack);
+  $.Log.Error(msg, '\n ' + e.stack);
   if (!req) return;
   if (req.headers.accept && req.headers.accept.indexOf('text/html') > -1) {
     require('send-data/html')(req, res, { statusCode: 500, body:

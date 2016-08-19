@@ -3,35 +3,44 @@ var path      = require('path')
   , Directory = require('glagol/core/directory')
   , Error     = require('glagol/core/error')
 
-module.exports = function (app, cb) {
+module.exports = function makeBundler (app) {
 
-  var bundlerOptions = app.options.bundler || {}
-    , result         = { formats: app.options.formats }
-    , currently      = '';
+  var bundler =
+    { app:        app
+    , browserify: require('browserify')({ cache: {} })
+    , buildApp:   buildApp
+    , buildLibs:  buildLibs };
 
-  try {
+  require('browserify-incremental-plugin')(bundler.browserify);
+  return bundler;
 
-    currently = 'freezing app source';
-      result.ice = freeze(app);
-
-    currently = 'freezing app dependencies';
-      result.deps = deps(app);
-
-    currently = 'bundling client code';
-      var br = require('browserify')({ cache: {} });
-      require('browserify-incremental-plugin')(br);
-      br.require('glagol', { expose: 'glagol' });
-      ['plaintext', 'javascript'].forEach((format) => {
-        format = 'glagol/formats/' + format + '.js';
-        br.require(format, { expose: 'format' }); })
-      Object.keys(result.deps.ids).forEach(function (module) {
-        br.require(module, { expose: result.deps.ids[module] }) })
-      br.bundle(cb);
-
-  } catch (error) {
-    cb(error, null);
+  function buildLibs (cb) {
+    var bundlerOptions = app.options.bundler || {}
+      , result         = { formats: app.options.formats }
+      , currently      = '';
+    try {
+      currently = 'determining app dependencies';
+        result.deps = deps(app);
+      currently = 'bundling client code';
+        bundler.browserify.require('glagol', { expose: 'glagol' });
+        ['plaintext', 'javascript'].forEach((format) => {
+          format = 'glagol/formats/' + format + '.js';
+          bundler.browserify.require(format, { expose: 'format' }) })
+        Object.keys(result.deps.ids).forEach(function (module) {
+          bundler.browserify.require(module, { expose: result.deps.ids[module] }) })
+        bundler.browserify.bundle(cb);
+    } catch (error) {
+      cb(error, null);
+    }
   }
 
+  function buildApp (cb) {
+    try {
+      cb(null, freeze(app));
+    } catch (e) {
+      cb(e, null)
+    }
+  }
 }
 
 function freeze (node, parent) {
