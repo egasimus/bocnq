@@ -19,7 +19,13 @@ module.exports = function (App) {
   return App;
 
   function listening () { $.Log("listening on 0.0.0.0:1666") }
-  function respond (req, res) { _.HTTP(req.url, req, res) }
+  function respond (req, res) {
+    try {
+      _.HTTP(req.url, req, res)
+    } catch (e) {
+      $.Log.Error('Error when trying to respond to HTTP request:', '\n ', e.stack);
+    }
+  }
   function connect () { _.WS(App, arguments[0]) }
 
   function reload (node) {
@@ -27,7 +33,7 @@ module.exports = function (App) {
     if (App.Http) {
       App.Http.removeListener('listening', listening);
       App.Http.removeListener('request',   respond); }
-    if (App.Socket) App.Socket.removeListener('connection', connection);
+    if (App.Ws) App.Ws.removeListener('connection', connection);
     try {
       node()(App);
     } catch (e) {
