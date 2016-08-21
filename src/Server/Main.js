@@ -43,7 +43,7 @@ module.exports = function (App) {
     if (App.Http) {
       App.Http.removeListener('listening', listening);
       App.Http.removeListener('request',   respond); }
-    if (App.Ws) App.Ws.removeListener('connection', connection);
+    if (App.Ws) App.Ws.removeListener('connection', connect);
     try {
       node()(App);
     } catch (e) {

@@ -35,7 +35,8 @@ function serveApp (route, req, res) {
   try {
     module.exports._bundler.buildApp((err, data) => {
       if (err) serveError(err, 'Error when bundling app code:', req, res);
-      else require('send-data')(req, res, { body: JSON.stringify(data) }); }) }
+      else require('send-data')(req, res,
+        { body: 'app=' + JSON.stringify(data) }); }) }
   catch (e) {
     $.Log.Error('Error preparing client-side app source:')
     $.Log.Error(e.stack) } }

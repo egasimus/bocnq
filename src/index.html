@@ -1,5 +1,10 @@
 <!doctype html>
 <body><div style="font-size:2em;font-weight:bold;text-align:center">loading...</div>
+<script>try{nativeRequire=require}catch(e){}//electron</script>
 <script src="/libs.js"></script>
 <script src="/app.js"></script>
-<script></script></body>
+<script>
+Glagol = require('glagol')(app);
+require('glagol').defaultLoader.connect('ws://' + window.location.host);
+Glagol.Main();
+</script></body>
